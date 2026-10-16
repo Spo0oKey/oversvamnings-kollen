@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kustöversvämnings Kollen</title>
+<meta name="description" content="Se hur utsatt en svensk adress är för översvämning från havet och från Vänern. Bygger på MSB:s översvämningskartering.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#2a78d6">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <header class="brand">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c5 7 9 11.5 9 16a9 9 0 0 1-18 0c0-4.5 4-9 9-16z" fill="currentColor"/><path d="M8 21c2.5 1.6 5.2 1.6 8 0s5.5-1.6 8 0" stroke="var(--surface)" stroke-width="2" fill="none"/></svg>
+      <div class="brand-text">
+        <h1 data-i18n="brand">Kustöversvämnings Kollen</h1>
+        <p class="sub" data-i18n="brand.sub"></p>
+      </div>
+      <div class="lang" role="group" data-i18n-aria="lang.label">
+        <button type="button" data-lang="sv" lang="sv">SV</button><button type="button" data-lang="en" lang="en">EN</button>
+      </div>
+    </header>
+
+    <div id="panelSearch">
+    <form id="search" autocomplete="off">
+      <label for="q" class="visually-hidden" data-i18n="search.label"></label>
+      <input id="q" type="search" data-i18n-placeholder="search.placeholder" required>
+      <button type="submit" data-i18n-aria="search.button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </form>
+    <ul id="suggestions" role="listbox" hidden></ul>
+    </div>
+
+    <section id="result" hidden aria-live="polite"></section>
+
+    <section id="explore" hidden>
+      <h2 data-i18n="ex.title"></h2>
+      <p class="ex-note" id="exNote"></p>
+      <div class="ex-level">
+        <button class="btn icon" id="exDown" type="button" data-i18n-aria="ex.down">−</button>
+        <div class="ex-read"><output id="exLevel">+0,2 m</output><span id="exArea">–</span></div>
+        <button class="btn icon" id="exUp" type="button" data-i18n-aria="ex.up">+</button>
+      </div>
+      <button class="btn-play" id="exPlay" type="button"></button>
+      <input id="exSlider" type="range" min="1" max="50" step="1" value="2" data-i18n-aria="ex.slider">
+      <p class="ex-status" id="exStatus"></p>
+      <div class="legend-depth" id="exLegend"></div>
+      <div class="ex-chart" id="exChart"></div>
+    </section>
+
+    <details id="intro" class="panel-details">
+      <summary data-i18n="intro.summary"></summary>
+      <p data-i18n="intro.p1"></p>
+      <p data-i18n="intro.p2"></p>
+      <p class="muted" data-i18n="intro.p3"></p>
+    </details>
+
+    <details class="panel-details" id="advanced">
+      <summary data-i18n="adv.summary"></summary>
+    <section id="layers">
+      <div class="ly-head">
+        <h2 data-i18n="adv.layers"></h2>
+        <div class="seg seg-sm" role="radiogroup" data-i18n-aria="adv.style">
+          <button type="button" data-style="level" aria-checked="true" role="radio" data-i18n="adv.byLevel"></button>
+          <button type="button" data-style="single" aria-checked="false" role="radio" data-i18n="adv.oneColour"></button>
+        </div>
+      </div>
+      <label class="slider"><span><span data-i18n="adv.opacity"></span> <output id="opOut">70 %</output></span>
+        <input id="opacity" type="range" min="20" max="100" step="5" value="70"></label>
+
+      <div class="ly-group" data-sys="coast">
+        <div class="ly-row">
+          <label class="ly-all"><input type="checkbox" id="allCoast" checked> <span data-i18n="adv.coast"></span></label>
+          <span class="ly-count" id="cntCoast"></span>
+        </div>
+        <label class="slider"><span><span data-i18n="adv.upTo"></span> <output id="upCoastOut">+5,0 m</output></span>
+          <input id="upCoast" type="range" min="1" max="50" step="1" value="50"></label>
+        <div class="chips" id="chipsCoast" role="group" data-i18n-aria="adv.chips.coast"></div>
+      </div>
+
+      <div class="ly-group" data-sys="vanern">
+        <div class="ly-row">
+          <label class="ly-all"><input type="checkbox" id="allVanern" checked> <span data-i18n="adv.van"></span></label>
+          <span class="ly-count" id="cntVanern"></span>
+        </div>
+        <label class="slider"><span><span data-i18n="adv.upTo"></span> <output id="upVanernOut">48,0 m</output></span>
+          <input id="upVanern" type="range" min="1" max="20" step="1" value="20"></label>
+        <div class="chips chips-v" id="chipsVanern" role="group" data-i18n-aria="adv.chips.van"></div>
+      </div>
+      <p class="muted small" data-i18n="adv.hint"></p>
+    </section>
+    </details>
+
+    <footer class="foot">
+      <p data-i18n="foot.data"></p>
+      <p data-i18n="foot.disclaimer"></p>
+    </footer>
+  </aside>
+  <main id="map" data-i18n-aria="map.aria"></main>
+</div>
+<div id="landing" role="dialog" aria-modal="true" aria-labelledby="landTitle">
+  <div class="land-card">
+    <div class="lang land-lang" role="group" data-i18n-aria="lang.label">
+      <button type="button" data-lang="sv" lang="sv">SV</button><button type="button" data-lang="en" lang="en">EN</button>
+    </div>
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c5 7 9 11.5 9 16a9 9 0 0 1-18 0c0-4.5 4-9 9-16z" fill="currentColor"/><path d="M8 21c2.5 1.6 5.2 1.6 8 0s5.5-1.6 8 0" stroke="var(--surface)" stroke-width="2" fill="none"/></svg>
+    <h1 id="landTitle" data-i18n="brand">Kustöversvämnings Kollen</h1>
+    <p class="land-lead" data-i18n="land.lead"></p>
+    <div id="landingSearch"></div>
+    <p class="land-note" id="landNote" data-i18n="land.note"></p>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="i18n.js"></script>
+<script src="refdata.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

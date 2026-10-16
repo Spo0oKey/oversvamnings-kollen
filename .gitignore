@@ -1,0 +1,4 @@
+# Raw MSB / Vänern geodatabases (8.9 GB, files over GitHub's 100 MB limit)
+gis_country_coast/
+*.gdb/
+__pycache__/
